@@ -3,7 +3,6 @@ import random
 
 import pygame.mixer as mixer
 
-
 VALID_FORMATS = ['wav', 'mp3', 'ogg']
 
 
@@ -28,13 +27,7 @@ class MusicManager:
             exit()
 
     def play_next(self):
-        if len(self.files) == 1:
-            self.currently_playing = self.files[0]
-        else:
-            playing = self.currently_playing
-            while playing == self.currently_playing:
-                playing = random.choice(self.files)
-            self.currently_playing = playing
+        self.currently_playing = random.choice(self.files)
 
         mixer.music.load(self.currently_playing)
         mixer.music.play(loops=0)
@@ -50,4 +43,3 @@ class MusicManager:
         mixer.music.set_volume(self.volume)
         with open('volume.txt', 'w') as fo:
             fo.write(str(self.volume))
-

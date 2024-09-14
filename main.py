@@ -1,8 +1,13 @@
+import time
+
 import pygame
 
 from default_path import DEFAULT_PATH
 from event_manager import EventManager
 from music_manager import MusicManager
+
+with open('times.txt', 'a') as fo:
+    fo.write(f"start={time.time()}\n")
 
 pygame.init()
 pygame.display.init()
@@ -20,6 +25,8 @@ VOLUME_COLOR = (20, 20, 20)
 VOLUME_UNSELECTED_COLOR = (200, 200, 200)
 VOLUME_RECT = pygame.Rect(130, 31, 160, 8)
 VOLUME_HITBOX = pygame.Rect(VOLUME_RECT.left, 10, VOLUME_RECT.width, 50)
+
+FONT = pygame.font.SysFont("arial", 10)
 
 try:
     with open('path.txt', 'r', encoding='utf-8') as fi:
@@ -105,8 +112,15 @@ def on_mouse_move(data: dict):
         music_manager.set_volume((x - VOLUME_HITBOX.left) / VOLUME_HITBOX.width)
 
 
+def get_volume_delta(mod: int):
+    if mod & pygame.KMOD_CTRL > 0:
+        return 0.001
+    if mod & pygame.KMOD_SHIFT > 0:
+        return 0.1
+    return 0.01
+
+
 def on_key(data: dict):
-    print(data)
     key = data['unicode']
     mod = data['mod']
     if key == ' ' or key == 'p':
@@ -114,11 +128,9 @@ def on_key(data: dict):
     elif key == 'n':
         next_music()
     elif key == '+':
-        delta = 0.01 if mod & pygame.KMOD_SHIFT > 0 else 0.1
-        music_manager.set_volume(music_manager.volume + delta)
+        music_manager.set_volume(music_manager.volume + get_volume_delta(mod))
     elif key == '-':
-        delta = 0.01 if mod & pygame.KMOD_SHIFT > 0 else 0.1
-        music_manager.set_volume(music_manager.volume - 0.1)
+        music_manager.set_volume(music_manager.volume - get_volume_delta(mod))
 
 
 event_manager.set_quit_callback(stop)
@@ -139,8 +151,14 @@ while running:
     pygame.draw.rect(screen, VOLUME_UNSELECTED_COLOR, VOLUME_RECT)
     pygame.draw.rect(screen, VOLUME_COLOR, volume_rect)
 
+    text = FONT.render(f'{100 * music_manager.volume:.1f} %', True, VOLUME_COLOR)
+    screen.blit(text, (VOLUME_RECT.left + (VOLUME_RECT.width - text.get_width()) / 2, VOLUME_RECT.bottom + 5))
+
     window.blit(screen, (0, 0))
     pygame.display.update()
 
 pygame.display.quit()
 pygame.quit()
+
+with open('times.txt', 'a') as fo:
+    fo.write(f"stop={time.time()}\n")
