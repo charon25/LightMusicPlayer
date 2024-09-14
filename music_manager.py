@@ -12,8 +12,9 @@ class MusicManager:
         self.path = path if path.endswith('\\') else path + '\\'
         self.files: list[str] = list()
         self.currently_playing: str = None
+        self.volume: float = 0.0
         mixer.init()
-        mixer.music.set_volume(1.0)
+        mixer.music.set_volume(0.0)
 
     def load(self, playlist: str):
         playlist_path = self.path + (playlist if playlist.endswith('\\') else playlist + '\\')
@@ -43,3 +44,10 @@ class MusicManager:
             return 'Aucune musique courante'
 
         return '.'.join(self.currently_playing.split('\\')[-1].split('.')[:-1])
+
+    def set_volume(self, volume: float):
+        self.volume = min(1.0, max(0.0, volume))
+        mixer.music.set_volume(self.volume)
+        with open('volume.txt', 'w') as fo:
+            fo.write(str(self.volume))
+

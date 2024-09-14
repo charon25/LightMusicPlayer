@@ -16,6 +16,11 @@ PAUSE = pygame.image.load("pause.png")
 NEXT = pygame.image.load("next.png")
 NEXT_RECT = pygame.Rect(10 + PLAY.get_width() + 10, 10, 50, 50)
 
+VOLUME_COLOR = (20, 20, 20)
+VOLUME_UNSELECTED_COLOR = (200, 200, 200)
+VOLUME_RECT = pygame.Rect(130, 31, 160, 8)
+VOLUME_HITBOX = pygame.Rect(VOLUME_RECT.left, 10, VOLUME_RECT.width, 50)
+
 try:
     with open('path.txt', 'r', encoding='utf-8') as fi:
         path = fi.read().splitlines()[0]
@@ -32,13 +37,24 @@ try:
 except:
     playlist = ""
 
+try:
+    with open('volume.txt', 'r', encoding='utf-8') as fi:
+        volume = float(fi.read().splitlines()[0])
+except:
+    print('"volume.txt" file not found, using default volume and creating it...')
+    volume = 0.5
+    with open('volume.txt', 'w', encoding='utf-8') as fo:
+        fo.write(str(volume))
+
 event_manager = EventManager()
 
 music_manager = MusicManager(path)
 music_manager.load(playlist)
+music_manager.set_volume(volume)
 
 running = True
 playing = True
+changing_volume = False
 
 
 def stop():
@@ -57,24 +73,41 @@ def toggle_play():
 
 def next_music():
     music_manager.play_next()
-    pygame.display.set_caption(music_manager.get_current_name())
+    pygame.display.set_caption(f'[{len(music_manager.files)}] {music_manager.get_current_name()}')
 
 
 next_music()
 
 
 def on_click(data: dict):
+    global changing_volume
+
     if data['button'] != 1:
         return
+
+    changing_volume = False
     x, y = data['pos']
     if PLAY_RECT.collidepoint(x, y):
         toggle_play()
     elif NEXT_RECT.collidepoint(x, y):
         next_music()
+    elif VOLUME_HITBOX.collidepoint(x, y):
+        changing_volume = True
+        music_manager.set_volume((x - VOLUME_HITBOX.left) / VOLUME_HITBOX.width)
+
+
+def on_mouse_move(data: dict):
+    if data['buttons'][0] != 1:
+        return
+
+    x, y = data['pos']
+    if changing_volume:
+        music_manager.set_volume((x - VOLUME_HITBOX.left) / VOLUME_HITBOX.width)
 
 
 event_manager.set_quit_callback(stop)
 event_manager.set_mouse_button_down_callback(on_click)
+event_manager.set_mouse_motion_callback(on_mouse_move)
 
 while running:
     event_manager.listen()
@@ -84,6 +117,10 @@ while running:
     screen.blit(PAUSE if playing else PLAY, PLAY_RECT.topleft)
 
     screen.blit(NEXT, NEXT_RECT.topleft)
+
+    volume_rect = pygame.Rect(VOLUME_RECT.topleft, (int(music_manager.volume * VOLUME_RECT.width), VOLUME_RECT.height))
+    pygame.draw.rect(screen, VOLUME_UNSELECTED_COLOR, VOLUME_RECT)
+    pygame.draw.rect(screen, VOLUME_COLOR, volume_rect)
 
     window.blit(screen, (0, 0))
     pygame.display.update()
