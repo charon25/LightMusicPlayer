@@ -1,10 +1,22 @@
+import os
 import time
 
 import pygame
+from pygame._sdl2 import Window
 
 from default_path import DEFAULT_PATH
 from event_manager import EventManager
 from music_manager import MusicManager
+
+try:
+    with open('last_position.txt', 'r') as fi:
+        x, y = map(int, fi.read().splitlines()[0].split(','))
+except:
+    with open('last_position.txt', 'w') as fo:
+        fo.write('200,200')
+    x, y = 200, 200
+
+os.environ['SDL_VIDEO_WINDOW_POS'] = f'{x},{y}'
 
 with open('times.txt', 'a') as fo:
     fo.write(f"start={time.time()}\n")
@@ -12,6 +24,8 @@ with open('times.txt', 'a') as fo:
 pygame.init()
 pygame.display.init()
 window = pygame.display.set_mode((300, 70))
+window_info = Window.from_display_module()
+previous_position = window_info.position
 
 pygame.display.set_icon(pygame.image.load("icon.png"))
 
@@ -139,6 +153,13 @@ event_manager.set_mouse_motion_callback(on_mouse_move)
 event_manager.set_key_down_callback(on_key)
 
 while running:
+    current_position = window_info.position
+    if current_position != previous_position:
+        x, y = current_position
+        with open('last_position.txt', 'w') as fo:
+            fo.write(f'{x},{y}')
+        previous_position = current_position
+
     event_manager.listen()
     screen = pygame.Surface((300, 100))
     screen.fill((230, 230, 230))

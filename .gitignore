@@ -4,6 +4,7 @@ path.txt
 playlist.txt
 volume.txt
 times.txt
+last_position.txt
 
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python

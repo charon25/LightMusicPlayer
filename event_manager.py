@@ -2,7 +2,6 @@ from typing import Callable
 
 import pygame
 
-
 MUSICENDEVENT = pygame.USEREVENT + 1
 
 
