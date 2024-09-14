@@ -13,7 +13,7 @@ pygame.init()
 pygame.display.init()
 window = pygame.display.set_mode((300, 70))
 
-# pygame.display.set_icon(pygame.image.load("icon.png"))
+pygame.display.set_icon(pygame.image.load("icon.png"))
 
 PLAY = pygame.image.load("play.png")
 PLAY_RECT = pygame.Rect(10, 10, 50, 50)
