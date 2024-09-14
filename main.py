@@ -105,9 +105,26 @@ def on_mouse_move(data: dict):
         music_manager.set_volume((x - VOLUME_HITBOX.left) / VOLUME_HITBOX.width)
 
 
+def on_key(data: dict):
+    print(data)
+    key = data['unicode']
+    mod = data['mod']
+    if key == ' ' or key == 'p':
+        toggle_play()
+    elif key == 'n':
+        next_music()
+    elif key == '+':
+        delta = 0.01 if mod & pygame.KMOD_SHIFT > 0 else 0.1
+        music_manager.set_volume(music_manager.volume + delta)
+    elif key == '-':
+        delta = 0.01 if mod & pygame.KMOD_SHIFT > 0 else 0.1
+        music_manager.set_volume(music_manager.volume - 0.1)
+
+
 event_manager.set_quit_callback(stop)
 event_manager.set_mouse_button_down_callback(on_click)
 event_manager.set_mouse_motion_callback(on_mouse_move)
+event_manager.set_key_down_callback(on_key)
 
 while running:
     event_manager.listen()
