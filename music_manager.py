@@ -3,6 +3,8 @@ import random
 
 import pygame.mixer as mixer
 
+import event_manager
+
 VALID_FORMATS = ['wav', 'mp3', 'ogg']
 
 
@@ -14,6 +16,7 @@ class MusicManager:
         self.volume: float = 0.0
         mixer.init()
         mixer.music.set_volume(0.0)
+        mixer.music.set_endevent(event_manager.MUSICENDEVENT)
 
     def load(self, playlist: str):
         playlist_path = self.path + (playlist if playlist.endswith('\\') else playlist + '\\')

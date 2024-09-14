@@ -151,6 +151,7 @@ event_manager.set_quit_callback(stop)
 event_manager.set_mouse_button_down_callback(on_click)
 event_manager.set_mouse_motion_callback(on_mouse_move)
 event_manager.set_key_down_callback(on_key)
+event_manager.set_music_end_callback(next_music)
 
 while running:
     current_position = window_info.position
